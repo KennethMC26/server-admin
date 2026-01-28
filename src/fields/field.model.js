@@ -46,4 +46,9 @@ const fieldSchema = new mongoose.Schema({
     }
 })
 
+// Indices
+fieldSchema.index({ isActive: 1 });
+fieldSchema.index({ fieldName: 1 });
+fieldSchema.index({ fieldName: 1, isActive: 1 });
+
 export default mongoose.model('Field', fieldSchema);
