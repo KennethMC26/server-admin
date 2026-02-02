@@ -1,40 +1,57 @@
 'use strict';
-
+ 
 import mongoose from "mongoose";
-
+ 
 const reservationSchema = new mongoose.Schema({
-    date: {
-        type: Date,
-        required: [true, 'La fecha es requerida']
-    },
-    time: {
-        type: String, // Ejemplo: "14:00"
-        required: [true, 'La hora es requerida']
-    },
-    duration: {
-        type: Number, // En horas
-        default: 1,
-        min: [1, 'La duración mínima es de 1 hora']
-    },
     field: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Field',
-        required: [true, 'Debe asignar una cancha']
+        required: [true, 'La cancha es requerida'],
     },
-    team: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Team',
-        required: [true, 'Debe asignar un equipo a la reserva']
+    customerName: {
+        type: String,
+        required: [true, 'El nombre del cliente es requerido'],
+        trim: true,
+        maxLenght: [100, 'El nombre no puede tener mas de 100 caracteres'],
+    },
+    customerEmail: {
+        type: String,
+        required: [true, 'El correo del cliente es requerido'],
+        trim: true,
+        lowercase: true,
+    },
+    reservationDate: {
+        type: Date,
+        required: [true, 'La fecha de la reservación es requerida'],
+    },
+    startTime: {
+        type: String,
+        required: [true, 'La hora de inicio es requerida'],
+    },
+    endTime: {
+        type: String,
+        required: [true, 'La hora de finalización es requerida'],
     },
     totalPrice: {
         type: Number,
-        required: true
+        required: [true, 'El precio total es requerido'],
+        min: [0, 'El precio debe ser mayor o igual a 0'],
     },
     status: {
         type: String,
-        enum: ['PENDIENTE', 'CONFIRMADA', 'CANCELADA'],
-        default: 'PENDIENTE'
-    }
-}, { timestamps: true });
-
+        enum: {
+            values: ['PENDIENTE', 'CONFIRMADA', 'CANCELADA'],
+            message: 'Estado de reservación no válido',
+        },
+        default: 'PENDIENTE',
+    },
+    isActive: {
+        type: Boolean,
+        default: true,
+    },
+}, {
+    timestamps: true
+});
+ 
+// exportamos el modelo con el nombre Reservation
 export default mongoose.model('Reservation', reservationSchema);

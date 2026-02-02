@@ -8,58 +8,59 @@ import { dbConnection } from './db.js';
 
 // Importar rutas
 import fieldRoutes from '../src/fields/field.routes.js';
+// Se agrega la importación de las rutas de reservaciones
+import reservationRoutes from '../src/reservations/reservation.routes.js';
+import teamRoutes from '../src/teams/team.routes.js';
+import tournamentRoutes from '../src/tournaments/tournament.routes.js';
 
 const BASE_URL = '/kinalSportAdmin/v1';
 
-//configuracion de mi aplicacion
-//se almacena en una funcion para que pueda ser exportada o usada al crear la instancia de la aplicacion
+// Configuración de mi aplicación
 const middlewares = (app) => {
-    // 
     app.use(express.urlencoded({ extended: false, limit: '10mb' }));
-    // Permite correr en nuestro programa json 
     app.use(express.json({ limit: '10mb' }));
-    // Usa las configuraciones de Cors
     app.use(cors(corsOptions));
-    // Permite mostrar errores
     app.use(morgan('dev'));
 }
 
 // Configuración de rutas
 const routes = (app) => {
     app.use(`${BASE_URL}/fields`, fieldRoutes);
+    // Se registra el endpoint para reservaciones
+    app.use(`${BASE_URL}/reservations`, reservationRoutes);
+    app.use(`${BASE_URL}/teams`, teamRoutes);
+    app.use(`${BASE_URL}/tournaments`, tournamentRoutes);
 }
 
-//funcion para iniciar el servidor
+// Función para iniciar el servidor
 const initServer = async (app) => {
-    // creacion de la instancia de la aplicacion
     app = express();
 
     const PORT = process.env.PORT || 3001;
 
     try {
-        dbConnection();
-        // Configuracion de los middlewares 
-        middlewares(app)
-        // Configuración de rutas
-        routes(app)
+        await dbConnection(); // Es buena práctica usar await aquí si dbConnection es asíncrona
+
+        middlewares(app);
+        routes(app);
+
         app.listen(PORT, () => {
-            console.log(`Servidor corriendo en el puerto ${PORT}`)
-            console.log(`Base URL: http://localhost:${PORT}${BASE_URL}`)
+            console.log(`Servidor corriendo en el puerto ${PORT}`);
+            console.log(`Base URL: http://localhost:${PORT}${BASE_URL}`);
+            console.log(`Reservations: http://localhost:${PORT}${BASE_URL}/reservations`);
         });
 
         // Primera ruta 
         app.get(`${BASE_URL}/health`, (req, res) => {
-            res.status(200).json(
-                {
-                    status: 'ok',
-                    service: 'KinalSport Admin',
-                    version: '1.0.0'
-                }
-            );
+            res.status(200).json({
+                status: 'ok',
+                service: 'KinalSport Admin',
+                version: '1.0.0'
+            });
         });
 
     } catch (error) {
-        console.log(error);
+        console.log("Error al iniciar el servidor:", error);
     }
 }
 
