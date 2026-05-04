@@ -1,5 +1,6 @@
 'use strict';
 
+//Importaciones
 import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
@@ -10,16 +11,18 @@ import { helmetConfiguration } from './helmet-configuration.js';
 import { requestLimit } from '../middlewares/request-limit.js';
 import { errorHandler } from '../middlewares/handle-errors.js';
 
-// Importar rutas
-import fieldRoutes from '../src/fields/field.routes.js';
-// Se agrega la importación de las rutas de reservaciones
-import reservationRoutes from '../src/reservations/reservation.routes.js';
-import teamRoutes from '../src/teams/team.routes.js';
-import tournamentRoutes from '../src/tournaments/tournament.routes.js';
+//Rutas
+import fieldRoutes from '../src/fields/field.router.js';
+import reservationRoutes from '../src/reservations/reservation.router.js';
+import teamRoutes from '../src/teams/teams.router.js';
+import tournamentRoutes from '../src/tournaments/tournament.router.js';
 
-const BASE_URL = '/kinalSportAdmin/v1';
 
-// Configuración de mi aplicación
+const BASE_URL = '/kinalSportsAdmin/v1';
+
+//Configuracion de mi aplicacion
+//Se almacena en una funcion para que pueda ser exportada o usada en un archivo
+//usada al crear la instancia de la aplicacion
 const middlewares = (app) => {
     app.use(helmet(helmetConfiguration));
     app.use(cors(corsOptions));
@@ -29,45 +32,46 @@ const middlewares = (app) => {
     app.use(morgan('dev'));
 }
 
-// Configuración de rutas
+//Integracion de todas las rutas
 const routes = (app) => {
     app.use(`${BASE_URL}/fields`, fieldRoutes);
-    // Se registra el endpoint para reservaciones
     app.use(`${BASE_URL}/reservations`, reservationRoutes);
     app.use(`${BASE_URL}/teams`, teamRoutes);
     app.use(`${BASE_URL}/tournaments`, tournamentRoutes);
 }
 
-// Función para iniciar el servidor
-const initServer = async (app) => {
-    app = express();
 
+//Funcion para iniciar el servidor
+const initServer = async (app) => {
+    //Creacion de la instancia de la aplicacion
+    app = express();
     const PORT = process.env.PORT || 3001;
 
     try {
-        await dbConnection(); // Es buena práctica usar await aquí si dbConnection es asíncrona
 
+        //Configuracion de los middlewares (Mi aplicacion)
+        dbConnection();
         middlewares(app);
         routes(app);
         app.use(errorHandler);
-
         app.listen(PORT, () => {
             console.log(`Servidor corriendo en el puerto ${PORT}`);
             console.log(`Base URL: http://localhost:${PORT}${BASE_URL}`);
-            console.log(`Reservations: http://localhost:${PORT}${BASE_URL}/reservations`);
         });
 
-        // Primera ruta 
+        //primera ruta
         app.get(`${BASE_URL}/health`, (req, res) => {
-            res.status(200).json({
-                status: 'ok',
-                service: 'KinalSport Admin',
-                version: '1.0.0'
-            });
+            res.status(200).json(
+                {
+                    status: 'ok',
+                    service: 'kinalSport Admin',
+                    version: '1.0.0'
+                }
+            );
         });
 
     } catch (error) {
-        console.log("Error al iniciar el servidor:", error);
+        console.log(error)
     }
 }
 

@@ -5,35 +5,48 @@ import mongoose from "mongoose";
 const tournamentSchema = new mongoose.Schema({
     tournamentName: {
         type: String,
-        required: [true, 'El nombre del torneo es requerido'],
+        required: [true, 'El nombre del torneo es obligatorio'],
         trim: true,
-        unique: true
+        maxLength: [100, 'El nombre del torneo no puede exceder 100 caracteres']
     },
-    category: {
+    description: {
         type: String,
-        required: true,
-        enum: {
-            values: ['MASCULINO', 'FEMENINO', 'MIXTO'],
-            message: 'Categoría no válida'
-        }
+        trim: true,
+        maxLength: [500, 'La descripción no puede exceder 500 caracteres']
     },
     startDate: {
         type: Date,
-        required: [true, 'La fecha de inicio es requerida']
+        required: [true, 'La fecha de inicio es obligatoria']
     },
     endDate: {
         type: Date,
-        required: [true, 'La fecha de fin es requerida']
+        required: [true, 'La fecha de fin es obligatoria']
     },
+    teams: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Team'
+    }],
     maxTeams: {
         type: Number,
-        required: true,
-        min: [2, 'Mínimo 2 equipos para un torneo']
+        required: [true, 'El límite de equipos es obligatorio'],
+        min: [2, 'Un torneo debe tener al menos 2 equipos']
+    },
+    status: {
+        type: String,
+        enum: {
+            values: ['INSCRIPCIONES', 'EN_CURSO', 'FINALIZADO'],
+            message: 'Estado del torneo no válido',
+        },
+        default: 'INSCRIPCIONES'
+    },
+    prize: {
+        type: String,
+        trim: true
     },
     isActive: {
         type: Boolean,
-        default: true
+        default: true,
     }
-}, { timestamps: true });
+})
 
 export default mongoose.model('Tournament', tournamentSchema);

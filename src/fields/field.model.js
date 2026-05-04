@@ -7,16 +7,18 @@ const fieldSchema = new mongoose.Schema({
         type: String,
         required: true,
         trim: true,
-        maxLength: [100, 'El nombre del campo no puede tener mas de 100 caacteres']
+        maxLegth: [100, 'El nombre del campo no puede tener mas de 100 caracteres']
     },
+
     fieldType: {
         type: String,
-        required: [true, 'el tipo de campo es requerido'],
+        required: [true, 'El tipo de campo es obligatorio'],
         enum: {
             values: ['NATURAL', 'SINTETICA', 'CONCRETO'],
             message: 'Tipo de superficie no valida',
         },
     },
+
     capacity: {
         type: String,
         required: [true, 'La capacidad es requerida'],
@@ -43,12 +45,12 @@ const fieldSchema = new mongoose.Schema({
     isActive: {
         type: Boolean,
         default: true,
-    }
+    },
 })
 
-// Indices
-fieldSchema.index({ isActive: 1 });
-fieldSchema.index({ fieldName: 1 });
-fieldSchema.index({ fieldName: 1, isActive: 1 });
+fieldSchema.index({isActive: 1});
+fieldSchema.index({fieldName: 1});
+fieldSchema.index({fieldName: 1, isActive: 1});
 
+// exportamos el modelo con el nombre Field
 export default mongoose.model('Field', fieldSchema);

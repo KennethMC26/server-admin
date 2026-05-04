@@ -1,57 +1,46 @@
 'use strict';
- 
+
 import mongoose from "mongoose";
- 
+
 const reservationSchema = new mongoose.Schema({
+    /*user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: [true, 'El usuario es obligatorio']
+    },*/
     field: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Field',
-        required: [true, 'La cancha es requerida'],
+        required: [true, 'La cancha es obligatoria']
     },
-    customerName: {
-        type: String,
-        required: [true, 'El nombre del cliente es requerido'],
-        trim: true,
-        maxLenght: [100, 'El nombre no puede tener mas de 100 caracteres'],
-    },
-    customerEmail: {
-        type: String,
-        required: [true, 'El correo del cliente es requerido'],
-        trim: true,
-        lowercase: true,
-    },
-    reservationDate: {
+    date: {
         type: Date,
-        required: [true, 'La fecha de la reservación es requerida'],
+        required: [true, 'La fecha es obligatoria']
     },
     startTime: {
         type: String,
-        required: [true, 'La hora de inicio es requerida'],
+        required: [true, 'La hora de inicio es obligatoria']
     },
     endTime: {
         type: String,
-        required: [true, 'La hora de finalización es requerida'],
+        required: [true, 'La hora de fin es obligatoria']
     },
     totalPrice: {
         type: Number,
-        required: [true, 'El precio total es requerido'],
-        min: [0, 'El precio debe ser mayor o igual a 0'],
+        required: [true, 'El precio total es obligatorio']
     },
     status: {
         type: String,
         enum: {
             values: ['PENDIENTE', 'CONFIRMADA', 'CANCELADA'],
-            message: 'Estado de reservación no válido',
+            message: 'Estado no válido',
         },
-        default: 'PENDIENTE',
+        default: 'PENDIENTE'
     },
     isActive: {
         type: Boolean,
         default: true,
     },
-}, {
-    timestamps: true
-});
- 
-// exportamos el modelo con el nombre Reservation
+})
+
 export default mongoose.model('Reservation', reservationSchema);

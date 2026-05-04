@@ -1,15 +1,23 @@
+'use strict';
+
 import Tournament from './tournament.model.js';
 
-// Obtener todos los torneos
 export const getTournaments = async (req, res) => {
     try {
         const { page = 1, limit = 10, isActive = true } = req.query;
+
         const filter = { isActive };
 
+        const options = {
+            page: parseInt(page),
+            limit: parseInt(limit),
+            sort: { createdAt: -1 },
+        };
+
         const tournaments = await Tournament.find(filter)
-            .limit(limit * 1)
-            .skip((page - 1) * limit)
-            .sort({ startDate: 1 });
+            .limit(options.limit)
+            .skip((options.page - 1) * options.limit)
+            .sort(options.sort);
 
         const total = await Tournament.countDocuments(filter);
 
@@ -17,79 +25,158 @@ export const getTournaments = async (req, res) => {
             success: true,
             data: tournaments,
             pagination: {
-                currentPage: parseInt(page),
-                totalPages: Math.ceil(total / limit),
+                currentPage: options.page,
+                totalPages: Math.ceil(total / options.limit),
                 totalRecords: total,
-                limit: parseInt(limit)
-            }
+                limit: options.limit,
+            },
         });
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: 'Error al obtener torneos',
-            error: error.message
+            message: 'Error al obtener los torneos',
+            error: error.message,
         });
     }
 };
 
-// Crear torneo
+export const getTournamentById = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const tournament = await Tournament.findById(id);
+
+        if (!tournament) {
+            return res.status(404).json({
+                success: false,
+                message: 'Torneo no encontrado',
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: tournament,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error al obtener el torneo',
+            error: error.message,
+        });
+    }
+};
+
 export const createTournament = async (req, res) => {
     try {
-        const tournament = new Tournament(req.body);
+        const tournamentData = req.body;
+
+        const tournament = new Tournament(tournamentData);
+
         await tournament.save();
 
         res.status(201).json({
             success: true,
             message: 'Torneo creado exitosamente',
-            data: tournament
+            data: tournament,
         });
     } catch (error) {
         res.status(400).json({
             success: false,
-            message: 'Error al crear torneo',
-            error: error.message
+            message: 'Error al crear el torneo',
+            error: error.message,
         });
     }
 };
 
-// Actualizar torneo
 export const updateTournament = async (req, res) => {
     try {
         const { id } = req.params;
-        const tournament = await Tournament.findByIdAndUpdate(id, req.body, { 
-            new: true, 
-            runValidators: true 
+        const updateData = req.body;
+
+        const tournament = await Tournament.findByIdAndUpdate(id, updateData, {
+            new: true,
+            runValidators: true,
         });
 
-        if (!tournament) return res.status(404).json({ success: false, message: 'Torneo no encontrado' });
+        if (!tournament) {
+            return res.status(404).json({
+                success: false,
+                message: 'Torneo no encontrado',
+            });
+        }
 
         res.status(200).json({
             success: true,
-            message: 'Torneo actualizado correctamente',
-            data: tournament
+            message: 'Torneo actualizado exitosamente',
+            data: tournament,
         });
     } catch (error) {
-        res.status(400).json({ success: false, error: error.message });
+        res.status(400).json({
+            success: false,
+            message: 'Error al actualizar el torneo',
+            error: error.message,
+        });
     }
 };
 
-// Borrado lógico (Desactivar/Eliminar)
 export const changeTournamentStatus = async (req, res) => {
     try {
         const { id } = req.params;
-        const isActive = req.method === 'DELETE' ? false : req.url.includes('/activate');
+
+        const isActive = req.url.includes('/activate');
+
         const action = isActive ? 'activado' : 'desactivado';
 
-        const tournament = await Tournament.findByIdAndUpdate(id, { isActive }, { new: true });
+        const tournament = await Tournament.findByIdAndUpdate(
+            id,
+            { isActive },
+            { new: true }
+        );
 
-        if (!tournament) return res.status(404).json({ success: false, message: 'Torneo no encontrado' });
+        if (!tournament) {
+            return res.status(404).json({
+                success: false,
+                message: 'Torneo no encontrado',
+            });
+        }
 
         res.status(200).json({
             success: true,
             message: `Torneo ${action} exitosamente`,
-            data: tournament
+            data: tournament,
         });
     } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
+        res.status(500).json({
+            success: false,
+            message: 'Error al cambiar el estado del torneo',
+            error: error.message,
+        });
+    }
+};
+
+export const deleteTournament = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const tournament = await Tournament.findByIdAndDelete(id);
+
+        if (!tournament) {
+            return res.status(404).json({
+                success: false,
+                message: 'Torneo no encontrado',
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Torneo eliminado exitosamente',
+            data: tournament,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error al eliminar el torneo',
+            error: error.message,
+        });
     }
 };

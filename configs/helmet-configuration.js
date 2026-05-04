@@ -13,7 +13,8 @@ export const helmetConfiguration = {
             frameAncestors: ["'none'"],
         },
     },
-    // HSTS desactivado por simplicidad (evita depender de entornos). Activar solo si se requiere.
+
+    // HSTS desactivado por simplicidad (evita depender de er
     hsts: false,
     // Cabeceras básicas y útiles para API
     frameguard: { action: 'deny' },

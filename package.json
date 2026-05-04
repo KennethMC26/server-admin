@@ -1,11 +1,28 @@
 {
   "name": "server-admin",
   "version": "1.0.0",
+  "description": "KinalSport es un sistema de administración para canchas deportivas, diseñado para gestionar **campos**, **torneos**, **equipos** y **reservas** de manera eficiente. Permite crear, actualizar, activar/desactivar y consultar información, gestionar torneos y reservas, con control de errores, validaciones y manejo de imágenes en la nube.",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/breynerbd/server-admin.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/breynerbd/server-admin/issues"
+  },
+  "homepage": "https://github.com/breynerbd/server-admin#readme",
   "dependencies": {
     "axios": "^1.13.3",
     "cloudinary": "^1.41.3",
     "cors": "^2.8.6",
-    "dotenv": "^17.2.3",
+    "dotenv": "^17.2.4",
     "express": "^5.2.1",
     "express-rate-limit": "^8.2.1",
     "express-validator": "^7.3.1",
@@ -17,15 +34,5 @@
     "multer-storage-cloudinary": "^4.0.0",
     "uuid": "^13.0.0"
   },
-  "description": "",
-  "main": "index.js",
-  "type": "module",
-  "devDependencies": {},
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "devDependencies": {}
 }

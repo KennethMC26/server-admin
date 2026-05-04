@@ -1,123 +1,178 @@
-# 🏟️ Kinal Sport Admin API
+# KinalSport Admin API
 
-Sistema integral de gestión para complejos deportivos desarrollado con **Node.js**, **Express** y **MongoDB**. Esta API permite administrar instalaciones, gestionar el flujo de reservaciones, organizar equipos y coordinar torneos deportivos.
+## Descripción
+KinalSport es un sistema de administración para canchas deportivas, diseñado para gestionar **campos**, **torneos**, **equipos** y **reservas** de manera eficiente. Permite crear, actualizar, activar/desactivar y consultar información, gestionar torneos y reservas, con control de errores, validaciones y manejo de imágenes en la nube.
 
-## 🚀 Características Principales
+## Tecnologías utilizadas
+- Node.js
+- Express.js
+- MongoDB & Mongoose
+- Cloudinary
+- Express Validator
+- Multer & Multer-Storage-Cloudinary
+- Helmet
+- CORS
+- Morgan
+- Rate Limit
+- dotenv
 
-* **Gestión de Media:** Integración con **Cloudinary** para almacenamiento de fotos de canchas y logos de equipos.
-* **Seguridad:** Implementación de **Helmet**, **CORS** y **Rate Limiting** para protección contra ataques comunes.
-* **Arquitectura:** Controladores desacoplados, validaciones mediante middlewares y manejo centralizado de errores.
-* **Persistencia:** Base de datos NoSQL con **Mongoose**, incluyendo paginación y borrado lógico.
+## Dependencias
 
----
-
-## 🛠️ Stack Tecnológico
-
-* **Backend:** Node.js / Express
-* **Base de Datos:** MongoDB / Mongoose
-* **Almacenamiento:** Cloudinary (vía Multer)
-* **Seguridad:** Helmet, CORS, Morgan (Logging)
-
----
-
-## 📂 Estructura de Endpoints
-
-La URL base para todas las peticiones es: 
-`http://localhost:3001/kinalSportAdmin/v1`
-
-### 🏟️ Canchas (Fields)
-Administra las instalaciones disponibles (Fútbol 5, 7, 11).
-- `GET /fields` - Listado paginado de canchas.
-- `GET /fields/:id` - Obtener detalle de una cancha.
-- `POST /fields` - Crear nueva cancha (Soporta carga de imagen).
-- `PUT /fields/:id` - Actualizar datos o imagen.
-- `PUT /fields/:id/activate` | `/deactivate` - Control de estado.
-
-ejemplo:
+### Dependencias principales
+```json
 {
-  "fieldName": "Estadio Kinal Central",
-  "fieldType": "SINTETICA",
+  "express": "^4.18.2",
+  "mongoose": "^7.5.0",
+  "dotenv": "^16.3.1",
+  "cloudinary": "^1.38.1",
+  "multer": "^1.4.5-lts.1",
+  "multer-storage-cloudinary": "^4.0.0",
+  "express-validator": "^7.0.1",
+  "helmet": "^7.0.0",
+  "cors": "^2.8.5",
+  "morgan": "^1.10.0",
+  "uuid": "^9.0.0",
+  "express-rate-limit": "^7.1.0"
+}
+Dependencias de desarrollo
+{
+  "nodemon": "^3.0.1"
+}
+Base URL
+http://localhost:3001/kinalSportsAdmin/v1
+Endpoints
+Campos deportivos (Fields)
+Obtener todos los campos
+
+GET /fields?page=1&limit=10&isActive=true
+Obtener campo por ID
+
+GET /fields/:id
+Crear campo
+
+POST /fields
+Body (JSON):
+
+{
+  "fieldName": "Cancha Central",
+  "fieldType": "NATURAL",
   "capacity": "FUTBOL_11",
-  "pricePerHour": 250,
-  "description": "Cancha con iluminación profesional y graderío techado."
+  "pricePerHour": 50,
+  "description": "Cancha principal de césped natural."
 }
+Actualizar campo
 
-### 📅 Reservaciones (Reservations)
-Control de alquiler de espacios por clientes.
-- `GET /reservations` - Listado de reservas (con datos del campo vinculados).
-- `GET /reservations/:id` - Detalle de reserva.
-- `POST /reservations` - Crear nueva reservación.
-- `PUT /reservations/:id` - Actualizar estado (PENDIENTE/CONFIRMADA/CANCELADA).
-- `DELETE /reservations/:id` - Borrado lógico.
+PUT /fields/:id
+Body (JSON):
 
-ejemplo:
 {
-  "field": "65f1a2b3c4d5e6f7a8b9c0d1", 
-  "customerName": "Juan Alcantara",
-  "customerEmail": "juan.alcantara@gmail.com",
-  "reservationDate": "2024-05-15T00:00:00.000Z",
-  "startTime": "14:00",
-  "endTime": "16:00",
-  "totalPrice": 500,
-  "status": "PENDIENTE"
+  "fieldName": "Cancha Secundaria",
+  "pricePerHour": 40,
+  "description": "Césped natural, iluminación nocturna."
 }
+Activar campo
 
-### 🛡️ Equipos (Teams)
-Gestión de escuadras y personal de apoyo.
-- `GET /teams` - Listado paginado de equipos.
-- `POST /teams` - Crear equipo con logo (Cloudinary).
-- `PUT /teams/:id` - Editar información del equipo.
-- `DELETE /teams/:id` - Desactivación de equipo.
+PUT /fields/:id/activate
+Desactivar campo
 
-ejemplo:
+PUT /fields/:id/deactivate
+Torneos (Tournaments)
+Obtener todos los torneos
+
+GET /tournaments?page=1&limit=10&isActive=true
+Obtener torneo por ID
+
+GET /tournaments/:id
+Crear torneo
+
+POST /tournaments
+Body (JSON):
+
 {
-  "teamName": "Gatos de Kinal FC",
-  "description": "Equipo representativo de la jornada matutina.",
-  "coach": "Roberto Gómez",
-  "captain": "Carlos Pérez"
+  "tournamentName": "Torneo Primavera",
+  "description": "Torneo abierto de fútbol 7.",
+  "startDate": "2026-03-01",
+  "endDate": "2026-03-15",
+  "maxTeams": 8
 }
+Actualizar torneo
 
-### 🏆 Torneos (Tournaments)
-Organización de competiciones por categorías.
-- `GET /tournaments` - Ver torneos activos.
-- `POST /tournaments` - Crear nuevo torneo (Masculino, Femenino, Mixto).
-- `PUT /tournaments/:id` - Editar fechas y límites de equipos.
-- `DELETE /tournaments/:id` - Cancelación/Desactivación lógica.
+PUT /tournaments/:id
+Body (JSON):
 
-ejemplo:
 {
-  "tournamentName": "Copa Inter-Kinal 2024",
-  "category": "MASCULINO",
-  "startDate": "2024-06-01",
-  "endDate": "2024-06-30",
-  "maxTeams": 16
+  "tournamentName": "Torneo Verano",
+  "maxTeams": 12
 }
+Activar torneo
 
----
+PUT /tournaments/:id/activate
+Desactivar torneo
 
-## ⚙️ Gestión de Imágenes
+PUT /tournaments/:id/deactivate
+Equipos (Teams)
+Obtener todos los equipos
 
-El sistema incluye una lógica automática de limpieza:
-1. **Subida:** Las imágenes se organizan en carpetas `teams/` y `fields/` en Cloudinary.
-2. **Reemplazo:** Al actualizar una foto, el sistema elimina automáticamente el archivo anterior de Cloudinary usando su `public_id` para optimizar el espacio.
-3. **Respaldo:** Se asignan imágenes por defecto si no se carga un archivo durante la creación.
+GET /teams
+Obtener equipo por ID
 
----
+GET /teams/:id
+Crear equipo
 
-## 🛡️ Seguridad y Middlewares
+POST /teams
+Body (JSON):
 
-- **Request Limit:** Restricción de peticiones para evitar ataques DoS.
-- **Field/Team Validators:** Validación estricta de tipos de datos antes de procesar cualquier solicitud.
-- **Cleanup Middleware:** En caso de error durante la creación, el sistema limpia archivos temporales para mantener el servidor optimizado.
+{
+  "teamName": "Leones FC",
+  "description": "Equipo competitivo de fútbol 7",
+  "captain": "64f5d6a1a2b3c1d2e3f4g5j",
+  "members": ["64f5d6a1a2b3c1d2e3f4g5k", "64f5d6a1a2b3c1d2e3f4g5l"],
+  "level": "INTERMEDIO"
+}
+Actualizar equipo
 
----
+PUT /teams/:id
+Body (JSON):
 
-## 🔧 Instalación y Configuración
+{
+  "teamName": "Tigres FC",
+  "level": "AVANZADO"
+}
+Activar equipo
 
-1.  **Clonar:** `git clone https://github.com/KennethMC26/server-admin.git`
-2.  **Instalar dependencias:** `npm install`
-3.  **Variables de Entorno:** Configurar un archivo `.env` con:
-    * `PORT=3001`
-    * `MONGO_URI=tu_conexion_mongodb`
-    * `CLOUDINARY_URL=tu_url_cloudinary`
-4.  **Ejecutar:** `npm start`
+PUT /teams/:id/activate
+Desactivar equipo
+
+PUT /teams/:id/deactivate
+Reservas (Reservations)
+Obtener todas las reservas
+
+GET /reservations?page=1&limit=10&fieldId=64f5d6a1a2b3c1d2e3f4g5h&teamId=64f5d6a1a2b3c1d2e3f4g5i
+Obtener reserva por ID
+
+GET /reservations/:id
+Crear reserva
+
+POST /reservations
+Body (JSON):
+
+{
+  "field": "64f5d6a1a2b3c1d2e3f4g5h",
+  "team": "64f5d6a1a2b3c1d2e3f4g5i",
+  "date": "2026-03-05",
+  "startTime": "15:00",
+  "endTime": "16:30",
+  "totalPrice": 50
+}
+Actualizar reserva
+
+PUT /reservations/:id
+Body (JSON):
+
+{
+  "startTime": "16:00",
+  "endTime": "17:30"
+}
+Cancelar reserva
+
+PUT /reservations/:id/cancel

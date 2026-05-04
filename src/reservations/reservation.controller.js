@@ -1,137 +1,116 @@
-import Reservation from './reservation.model.js';
+import Reservation from "./reservation.model.js";
 
-// Obtener reservaciones con paginación
 export const getReservations = async (req, res) => {
-    try {
-        const { page = 1, limit = 10, status } = req.query;
-        const filter = status ? { status, isActive: true } : { isActive: true };
+  try {
+    const { page = 1, limit = 10, isActive = true } = req.query;
+    const filter = { isActive };
 
-        const reservations = await Reservation.find(filter)
-            .populate('field', 'fieldName fieldType') // Trae info de la cancha
-            .limit(limit * 1)
-            .skip((page - 1) * limit)
-            .sort({ createdAt: -1 });
+    const options = {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      sort: { date: -1, startTime: 1 }, 
+    };
 
-        const total = await Reservation.countDocuments(filter);
+    const reservations = await Reservation.find(filter)
+      .populate("field", "name location") 
+      .limit(options.limit)
+      .skip((options.page - 1) * options.limit)
+      .sort(options.sort);
 
-        res.status(200).json({
-            success: true,
-            data: reservations,
-            pagination: {
-                currentPage: parseInt(page),
-                totalPages: Math.ceil(total / limit),
-                totalRecords: total,
-                limit: parseInt(limit),
-            },
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Error al obtener las reservaciones',
-            error: error.message,
-        });
-    }
+    const total = await Reservation.countDocuments(filter);
+
+    res.status(200).json({
+      success: true,
+      data: reservations,
+      pagination: {
+        currentPage: options.page,
+        totalPages: Math.ceil(total / options.limit),
+        totalRecords: total,
+        limit: options.limit,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error al obtener las reservas",
+      error: error.message,
+    });
+  }
 };
 
-// Obtener reservación por ID
 export const getReservationById = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const reservation = await Reservation.findById(id).populate('field');
+  try {
+    const { id } = req.params;
+    const reservation = await Reservation.findById(id)
+      .populate("field", "name location");
 
-        if (!reservation) {
-            return res.status(404).json({
-                success: false,
-                message: 'Reservación no encontrada',
-            });
-        }
-
-        res.status(200).json({ success: true, data: reservation });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Error al obtener la reservación',
-            error: error.message,
-        });
+    if (!reservation) {
+      return res.status(404).json({
+        success: false,
+        message: "Reserva no encontrada",
+      });
     }
+
+    res.status(200).json({
+      success: true,
+      data: reservation,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error al obtener la reserva",
+      error: error.message,
+    });
+  }
 };
 
-// Crear reservación
 export const createReservation = async (req, res) => {
-    try {
-        const reservation = new Reservation(req.body);
-        await reservation.save();
+  try {
+    const reservationData = req.body;
+    const reservation = new Reservation(reservationData);
+    await reservation.save();
 
-        res.status(201).json({
-            success: true,
-            message: 'Reservación creada exitosamente',
-            data: reservation,
-        });
-    } catch (error) {
-        res.status(400).json({
-            success: false,
-            message: 'Error al crear la reservación',
-            error: error.message,
-        });
-    }
+    res.status(201).json({
+      success: true,
+      message: "Reserva creada exitosamente",
+      data: reservation,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: "Error al crear la reserva",
+      error: error.message,
+    });
+  }
 };
 
-// Actualizar reservación (Estado o datos)
-export const updateReservation = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const reservation = await Reservation.findByIdAndUpdate(id, req.body, {
-            new: true,
-            runValidators: true,
-        });
+export const confirmReservation = async (req, res) => {
+  try {
+    const { id } = req.params;
 
-        if (!reservation) {
-            return res.status(404).json({
-                success: false,
-                message: 'Reservación no encontrada',
-            });
-        }
+    const reservation = await Reservation.findByIdAndUpdate(
+      id,
+      { status: "CONFIRMADA" },
+      { new: true }
+    );
 
-        res.status(200).json({
-            success: true,
-            message: 'Reservación actualizada exitosamente',
-            data: reservation,
-        });
-    } catch (error) {
-        res.status(400).json({
-            success: false,
-            message: 'Error al actualizar la reservación',
-            error: error.message,
-        });
+    if (!reservation) {
+      return res.status(404).json({
+        success: false,
+        message: "Reserva no encontrada",
+      });
     }
-};
 
-// Desactivar reservación (Soft Delete)
-export const deleteReservation = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const reservation = await Reservation.findByIdAndUpdate(
-            id,
-            { isActive: false },
-            { new: true }
-        );
-
-        if (!reservation) {
-            return res.status(404).json({
-                success: false,
-                message: 'Reservación no encontrada',
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            message: 'Reservación eliminada (desactivada) exitosamente',
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Error al eliminar la reservación',
-            error: error.message,
-        });
-    }
+    res.status(200).json({
+      success: true,
+      message: "Reserva confirmada exitosamente",
+      data: reservation,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error al confirmar la reserva",
+      error: error.message,
+    });
+  }
 };
