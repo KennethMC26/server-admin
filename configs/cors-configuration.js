@@ -1,12 +1,15 @@
 const corsOptions = {
-    //Permite que cualquier origen acceda a la API
-    orgin: true,
-    //Permite que la API acceda a la API
+    // Corregido: origin (estaba como orgin)
+    origin: true, 
+    
+    // Permite el uso de credenciales/cookies
     credentials: true,
-    //Establece los metodos permitidos en la API
-    methods: "GET, POST, PUT, DELETE",
-    //Define los headers que el cliente puede enviar
-    allowedHeaders: "Content-Type,Authotization"
+    
+    // Corregido: Es mejor usar un array o asegurar que los métodos coincidan
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    
+    // Corregido: Authorization (estaba como Authotization con 't')
+    allowedHeaders: ["Content-Type", "Authorization"]
 }
 
 export { corsOptions }
