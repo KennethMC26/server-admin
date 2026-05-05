@@ -99,11 +99,11 @@ export const createField = async (req, res) => {
 
       const relativePath = filename.substring(filename.indexOf("fields/"));
 
-      fieldData.photo = `${relativePath}.${extension}`;
+      fieldData.image = `${relativePath}.${extension}`;
     } else {
       // Si no se envía archivo, usar imagen por defecto
 
-      fieldData.photo = "fields/kinal_sports_nyvxo5";
+      fieldData.image = "fields/kinal_sports_nyvxo5";
     }
 
     const field = new Field(fieldData);
@@ -139,8 +139,8 @@ export const updateField = async (req, res) => {
     if (req.file) {
       const currentField = await Field.findById(id);
 
-      if (currentField && currentField.photo) {
-        const photoPath = currentField.photo;
+      if (currentField && currentField.image) {
+        const photoPath = currentField.image;
 
         const photoWithoutExt = photoPath.substring(
           0,
@@ -167,7 +167,7 @@ export const updateField = async (req, res) => {
         ? filename.substring(filename.indexOf("fields/"))
         : filename;
 
-      updateData.photo = `${relativePath}.${extension}`;
+      updateData.image = `${relativePath}.${extension}`;
     }
 
     const field = await Field.findByIdAndUpdate(id, updateData, {

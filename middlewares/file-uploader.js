@@ -6,6 +6,9 @@ import { v4 as uuidv4 } from 'uuid';
 import { extname } from 'path';
  
 dotenv.config();
+if (process.env.DISABLE_SSL_VERIFY === 'true') {
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+}
  
 // Configuración de Cloudinary
 cloudinary.config({
